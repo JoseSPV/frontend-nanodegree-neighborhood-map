@@ -2,26 +2,12 @@
 /**
 * Stores the available Google Maps Icons
 */
-var googlMapsIcons = {
-  main: 'images/map_icons/main_dot.png',
-  point: 'images/map_icons/point.png'
-};
-
-var infoWindowMarkup = {
-  header: '<div class="row infoWindow"><div class="col-xs-12"><h4>%data%</h4></div>',
-  address: '<div class="col-xs-12 col-md-6 infoWindow-data-group"><i class="glyphicon glyphicon-map-marker infoWindow-data"></i><span>%data%</span></div>',
-  phone: '<div class="col-xs-12 col-md-6 infoWindow-data-group"><i class="glyphicon glyphicon-earphone infoWindow-data"></i><span>%data%</span></div>',
-  web: '<div class="col-xs-12"><a href="%data%" target="_blank" title="%data%">%data%</a></div>',
-  end: '</div>'
-};
-
-
 var errorMessages = {
   googleMaps: "Oops! We cannot coonnect with Google. Please check your internet connection :)",
   foursquare: {
     getCategories: 'Caca cat'
   }
-}
+};
 
 var request = {
   status: 'ok',
@@ -31,36 +17,46 @@ var request = {
 
 /* Stores the animations and effects of the UI */
 var animations = {
+
   toggleMenu: function () {
     $("#menu-toggler").toggleClass('show-menu');
   },
+
   showList: function () {
     $('#sidebar').toggleClass('is-hidden col-xs-2');
     $('#main').toggleClass('col-xs-12 col-xs-10');
   },
+
+  activateDeactivate: function (target) {
+    target.toggleClass('is-active');
+  },
+
   displayHidden: function () {
     $(".filter-box-wrapper,.buttons-list").removeClass('is-hidden');
   },
+
   removeBg: function () {
     $("#map").removeClass('show-bg');
   },
+
   showProgressBar: function() {
     $(".progress").fadeIn('fast');
   },
+
   progressbar: function (value) {
     if(value === 100) {
       $(".progress-bar").css('width', value+'%');
       $(".progress").delay(800).fadeOut('slow');
-      //debugger;
     }
     else {
       $(".progress-bar").css('width', value+'%');
-      //debugger;
     }
   },
+
   setWarning: function () {
     //$(".progress-bar").toggleClass('progress-bar-success','progress-bar progress-bar-warning');
-  },
+  }
+
 };
 
 /**
@@ -223,7 +219,7 @@ var InterestPoint = function(ipData) {
     var marker = point.marker.marker;
     var map = point.marker.map;
 
-    var infoWindow = point.marker.infoWindow.infoWindow;
+    var infoWindow = point.marker.infoWindow.object;
     var infoWindowContent = point.marker.infoWindowContent();
 
     map.setCenter(marker.getPosition());
@@ -295,21 +291,21 @@ var MapMarker = function (markerData) {
   */
   self.infoWindowContent = ko.computed(function() {
 
-    var html = infoWindowMarkup.header.replace("%data%", self.title);
+    var html = self.infoWindow.htmlMarkup.header.replace("%data%", self.title);
 
     if(self.address !== '') {
-      html += infoWindowMarkup.address.replace("%data%", self.address);
+      html += self.infoWindow.htmlMarkup.address.replace("%data%", self.address);
     }
 
     if(self.phone !== '') {
-      html += infoWindowMarkup.phone.replace("%data%", self.phone);
+      html += self.infoWindow.htmlMarkup.phone.replace("%data%", self.phone);
     }
 
     if(self.web !== '') {
-      html += infoWindowMarkup.web.replace(/%data%/g, self.web);
+      html += self.infoWindow.htmlMarkup.web.replace(/%data%/g, self.web);
     }
 
-    html += infoWindowMarkup.end;
+    html += self.infoWindow.htmlMarkup.end;
 
     return html;
   });
@@ -319,8 +315,8 @@ var MapMarker = function (markerData) {
 
     /* Sets the infoWindow content and centers the map */
     self.map.setCenter(self.marker.getPosition());
-    self.infoWindow.infoWindow.setContent(self.infoWindowContent());
-    self.infoWindow.infoWindow.open(self.map, self.marker);
+    self.infoWindow.object.setContent(self.infoWindowContent());
+    self.infoWindow.object.open(self.map, self.marker);
 
   });
 
@@ -342,45 +338,60 @@ var MapMarker = function (markerData) {
 * @class {Search} - ViewModel that stores the current location and all the necessary to update the interface and the models
 */
   var Search = function () {
+    //'use strict';
     var self = this;
 
     self.initApp = function () {
 
-      self.address = ko.observable('');
-      self.locationId = ko.observable();
-      self.coordinates = ko.observable(false);
+      self.currentSearch = {
+        address: ko.observable(''),
+        locationId: ko.observable(''),
+        locations: ko.observableArray([]),
+        storedPoints: {},
+        visiblePoints: ko.observableArray([]),
 
-      self.locations = ko.observableArray([]);
-      self.storedPoints = {};
-      self.visiblePoints = ko.observableArray([]);
+        // Wikimedia
+        wikiArticles: ko.observableArray([]),
 
-      // Wikimedia
-      self.wikiArticles = ko.observableArray([]);
-
-      self.loadDataController = {///*****
-        dataToLoad: 0,
-        dataLoaded: 0,
-        dataNotLoaded: 0,
-        progressBarControl: {
-          increase: 10,
-          progress: 10
-        },
         reset: function () {
-          this.dataToLoad = 0;
-          this.dataLoaded = 0;
-          this.dataNotLoaded = 0;
-          this.progressBarControl = {
-            increase: 10,
-            progress: 0
-          };
+          this.storedPoints = {};
+          self.hideMapMarkers(this.visiblePoints());
+          this.visiblePoints.removeAll();
         }
+
       };
 
       self.initUI();
       self.initFilters();
       self.initMap();
       self.initFoursquare(5);
-    }
+    };
+
+    self.loadDataController = {///*****
+      dataToLoad: 0,
+      dataLoaded: 0,
+      dataNotLoaded: 0,
+      progressBarControl: {
+        increase: 10,
+        progress: 10
+      },
+      reset: function () {
+        this.dataToLoad = self.appFilters.categoriesFilters.length - 1;
+        this.dataLoaded = 0;
+        this.dataNotLoaded = 0;
+        this.progressBarControl = {
+          increase: 10,
+          progress: 0
+        };
+      }
+    };
+
+    self.resetApp = function () {
+      self.loadDataController.reset();
+      self.appFilters.reset();
+      self.currentSearch.reset();
+      self.map.reset();
+    };
 
     /* Intializes the app UI controller */
     self.initUI = function () {
@@ -405,7 +416,6 @@ var MapMarker = function (markerData) {
     };
 
     self.initFilters = function () {
-      'use strict';
       self.appFilters = {
         categoriesFilters: [],
         lastCategorySelected: '',
@@ -424,7 +434,7 @@ var MapMarker = function (markerData) {
       self.filteredData = ko.computed(function() {
         var query = self.appFilters.searchTerm().toLowerCase();
 
-        return ko.utils.arrayFilter(self.visiblePoints(), function(point) {
+        return ko.utils.arrayFilter(self.currentSearch.visiblePoints(), function(point) {
           var isFiltered = point.name.toLowerCase().indexOf(query) >= 0;
           point.marker.isVisible(isFiltered);
 
@@ -454,37 +464,111 @@ var MapMarker = function (markerData) {
         }
 
       }
+
+
+      //retrieves the group value from the button and sets the visble group
+      self.showGroup = function(categoryGroup) {
+
+        //if(categoryGroup.id !== self.appFilters.lastCategorySelected) {
+          var group = '';
+
+          if(categoryGroup.id === 'all') {
+            var groups = [];
+
+            for(group in self.currentSearch.storedPoints) {
+              if(group !== self.appFilters.lastCategorySelected) {
+                for(var i = 0; i < self.currentSearch.storedPoints[group].length; i++) {
+                  groups.push(self.currentSearch.storedPoints[group][i]);
+                }
+              }
+
+            }
+            self.currentSearch.visiblePoints(groups);
+            self.showMapMarkers(self.currentSearch.visiblePoints());
+
+          } else {
+
+            if(self.appFilters.lastCategorySelected ===  'all') {
+
+              for(group in self.currentSearch.storedPoints) {
+                if(group !== categoryGroup.id) {
+                  self.hideMapMarkers(self.currentSearch.storedPoints[group]);
+                }
+              }
+
+            } else {
+              self.hideMapMarkers(self.currentSearch.storedPoints[self.appFilters.lastCategorySelected]);
+              self.showMapMarkers(self.currentSearch.storedPoints[categoryGroup.id]);
+            }
+            self.currentSearch.visiblePoints(self.currentSearch.storedPoints[categoryGroup.id]);
+
+          }
+
+          // change the visual status of the pressed and no pressed before button
+          animations.activateDeactivate($("#"+self.appFilters.lastCategorySelected));
+          animations.activateDeactivate($("#"+categoryGroup.id));
+          self.appFilters.lastCategorySelected = categoryGroup.id;
+        //}
+
+      };
+
     };
 
     self.initMap = function () {
-      self.markers = [];
-      self.mapCreated = ko.observable(false);
-      self.currentMap = ko.observable();
-      self.mapBounds = new google.maps.LatLngBounds();
 
-      // used to update the map RENOMBRAR A CREATE MAP o a MAP
-      self.mapData = ko.computed(function() {
-        return {
-          center: self.coordinates,
-          mapCreated: self.mapCreated,
-          map: self.currentMap
-        };
-      });
+      self.map = {
+        coordinates: ko.observable(false),
+        mapBounds: new google.maps.LatLngBounds(),
+        mapCreated: ko.observable(false),
+        currentMap: ko.observable(),
+        markers: [],
+        infoWindow: {
+          object: new google.maps.InfoWindow({
+            maxWidht: 300
+          }),
+          htmlMarkup: {
+            header: '<div class="row infoWindow"><div class="col-xs-12"><h4>%data%</h4></div>',
+            address: '<div class="col-xs-12 col-md-6 infoWindow-data-group"><i class="glyphicon glyphicon-map-marker infoWindow-data"></i><span>%data%</span></div>',
+            phone: '<div class="col-xs-12 col-md-6 infoWindow-data-group"><i class="glyphicon glyphicon-earphone infoWindow-data"></i><span>%data%</span></div>',
+            web: '<div class="col-xs-12"><a href="%data%" target="_blank" title="%data%">%data%</a></div>',
+            end: '</div>'
+          }
+        },
 
-      self.infoWindowWrapper = {
-        infoWindow: new google.maps.InfoWindow({
-          maxWidht: 300
-        }),
+        reset: function () {
+          this.markers = [];
+          this.mapBounds = new google.maps.LatLngBounds();
+        }
       };
+
+      self.mapCustomStyles = {
+        googlMapsIcons: {
+          main: 'images/map_icons/main_dot.png',
+          point: 'images/map_icons/point.png'
+        }
+      };
+
+      self.hideMapMarkers = function (fromPoints) {
+        var points = fromPoints.length;
+        for(var i = 0; i < points; i++){
+          fromPoints[i].marker.isVisible(false);
+        }
+      };
+
+      self.showMapMarkers = function (fromPoints) {
+        var points = fromPoints.length;
+        for(var i = 0; i < points; i++){
+          fromPoints[i].marker.isVisible(true);
+        }
+      };
+
     };
 
-
-
     /**
-    * Callback used by FoursquareApi.getVenues
-    * @callback FoursquareApi.getVenues
-    * @param {object} The categories of Foursquare
-    */
+      * Callback used by FoursquareApi.getVenues
+      * @callback FoursquareApi.getVenues
+      * @param {object} The categories of Foursquare
+      */
     function populateInterestPoints (response, category) {
 
       if(response.status === 'ok') {
@@ -502,23 +586,23 @@ var MapMarker = function (markerData) {
               // Map marker
               marker: new MapMarker({
                 id: 'marker_' + venue.id,
-                map: self.currentMap(),
+                map: self.map.currentMap(),
                 title: venue.name,
                 address: venue.location.formattedAddress,
                 phone: venue.contact.formattedPhone || '',
                 web: venue.url || '',
                 position: new google.maps.LatLng(venue.location.lat, venue.location.lng),
-                icon: googlMapsIcons.point,
-                infoWindow: self.infoWindowWrapper,
-                markersArray: self.markers
+                icon: self.mapCustomStyles.googlMapsIcons.point,
+                infoWindow: self.map.infoWindow,
+                markersArray: self.map.markers
               })
             });
 
-            self.mapBounds.extend(point.marker.position);
+            self.map.mapBounds.extend(point.marker.position);
             return point;
           });
 
-          self.storedPoints[category.id] = venues;
+          self.currentSearch.storedPoints[category.id] = venues;
           self.appFilters.visibleCategoriesFilters.push(category);
         }
 
@@ -529,8 +613,10 @@ var MapMarker = function (markerData) {
       }
 
       if(self.loadDataController.dataLoaded === self.loadDataController.dataToLoad) {
-        self.currentMap().fitBounds(self.mapBounds);
-        self.showAllGroups();
+        self.map.currentMap().fitBounds(self.map.mapBounds);
+        self.appFilters.visibleCategoriesFilters.push({id:'all', name:'all', icon:'images/all.png'});
+
+        self.showGroup({id: 'all'});
         self.appUI.allowFilters(true);
       } else {
         self.loadDataController.dataLoaded++;
@@ -540,122 +626,28 @@ var MapMarker = function (markerData) {
 
     }
 
-    self.resetSearch = function () {
-      // Elimina markers y vacía puntos de interés controlar por checkbox?
-      self.hideMapMarkers(self.visiblePoints());
-      self.markers = [];
-      self.mapBounds = new google.maps.LatLngBounds();
-
-      self.storedPoints = {};
-      self.visiblePoints.removeAll();
-      self.appFilters.visibleCategoriesFilters.removeAll();
-      self.wikiArticles.removeAll();
-
-      self.appFilters.searchTerm('');
-      self.appFilters.lastCategorySelected = '';
-
-      self.loadDataController.reset();
-      self.loadDataController.dataToLoad = self.appFilters.categoriesFilters.length - 1;
-    };
-
-    self.hideMapMarkers = function (fromPoints) {
-      var points = fromPoints.length;
-      for(var i = 0; i < points; i++){
-        fromPoints[i].marker.isVisible(false);
-      }
-    };
-
-    self.showMapMarkers = function (fromPoints) {
-      var points = fromPoints.length;
-      for(var i = 0; i < points; i++){
-        fromPoints[i].marker.isVisible(true);
-      }
-    };
-
-    //retrieves the group value from the button and sets the visble group
-    self.showGroup = function(categoryGroup) {
-      //prevent refresh the same group
-      if(categoryGroup.id !== self.appFilters.lastCategorySelected) {
-
-        if(self.appFilters.lastCategorySelected ===  'all') {
-
-          for(var group in self.storedPoints) {
-            if(group !== categoryGroup.id) {
-              self.hideMapMarkers(self.storedPoints[group]);
-            }
-          }
-
-        } else {
-          self.hideMapMarkers(self.storedPoints[self.appFilters.lastCategorySelected]);
-          self.showMapMarkers(self.storedPoints[categoryGroup.id]);
-        }
-        // change the visual status of the pressed and no pressed before button
-        $("#"+self.appFilters.lastCategorySelected).toggleClass('is-active');
-        $("#"+categoryGroup.id).toggleClass('is-active');
-
-        self.visiblePoints(self.storedPoints[categoryGroup.id]);
-        self.appFilters.lastCategorySelected = categoryGroup.id;
-      }
-
-    };
-
-    self.showAllGroups = function() {
-
-      if(self.appFilters.lastCategorySelected !== 'all') {
-        var groups = [];
-
-        for(var group in self.storedPoints) {
-
-          if(group !== self.appFilters.lastCategorySelected) {
-            for(var i = 0; i < self.storedPoints[group].length; i++) {
-              groups.push(self.storedPoints[group][i]);
-            }
-          }
-
-        }
-
-        $("#"+self.appFilters.lastCategorySelected).toggleClass('is-active');
-        $("#all").toggleClass('is-active');
-
-        self.visiblePoints(groups);
-        self.showMapMarkers(self.visiblePoints());
-        self.appFilters.lastCategorySelected = 'all';
-      }
-    };
-
     self.addLocation = function (location) {
-      if(self.locations().length > 0) {
-        self.resetSearch();
-      }
 
-      self.locations.push(location);
-      self.locationId(location.id);
-      self.address(location.address);
-      self.coordinates(location.coordinates);
+      if(location.id !== self.currentSearch.locationId()) {
 
-      self.appUI.showHidden(true);
-      animations.showProgressBar();
+        if(self.currentSearch.locations().length > 0) {
+          self.resetApp();
+        }
 
-      //comprobar si no llegan categorías
-      var formattedCoordinates = location.coordinates.G + ',' + location.coordinates.K;
-      self.foursquareApi.getVenues(formattedCoordinates,self.appFilters.categoriesFilters,self.resultsLimit,populateInterestPoints);
-    };
+        self.currentSearch.locations.push(location);
+        self.currentSearch.locationId(location.id);
+        self.currentSearch.address(location.address);
+        self.map.coordinates(location.coordinates);
 
-    self.reloadLocation = function (location) {
-      if(location.id !== self.locationId()) {
-        self.resetSearch();
-        self.locationId(location.id);
-        self.address(location.address);
-        self.coordinates(location.coordinates);
-
+        self.appUI.showHidden(true);
         animations.showProgressBar();
 
         //comprobar si no llegan categorías
         var formattedCoordinates = location.coordinates.G + ',' + location.coordinates.K;
-
         self.foursquareApi.getVenues(formattedCoordinates,self.appFilters.categoriesFilters,self.resultsLimit,populateInterestPoints);
       }
-  };
+
+    };
 
 };
 
@@ -668,7 +660,7 @@ ko.bindingHandlers.updateMap = {
 
     self.mapStatus = valueAccessor();
 
-    if(!self.mapStatus().mapCreated() && self.mapStatus().center() !== false) {
+    if(!self.mapStatus.mapCreated() && self.mapStatus.coordinates() !== false) {
 
       animations.removeBg();
 
@@ -683,10 +675,10 @@ ko.bindingHandlers.updateMap = {
         streetViewControl: false
       };
 
-      self.mapStatus().map(
+      self.mapStatus.currentMap(
         new google.maps.Map(element, mapOptions)
       );
-      self.mapStatus().mapCreated(true);
+      self.mapStatus.mapCreated(true);
     }
   }
 };
@@ -710,7 +702,6 @@ ko.bindingHandlers.getLocation = {
 
             var location = self.autocomplete.getPlace();
             if(location.geometry) {
-              //comprobar que no queda vacío y añadir algo para prevenir usos incorrectos y feedback
               var locationData = new Location(location.id,location.name,location.formatted_address,location.geometry.location);
               self.newLocation(locationData);
             }
@@ -734,9 +725,9 @@ function loadGoogleMaps() {
 }
 
 function startApp () {
-  var currentSearch = new Search();
-  currentSearch.initApp();
-  ko.applyBindings(currentSearch);
+  var app = new Search();
+  app.initApp();
+  ko.applyBindings(app);
 }
 
 window.onload = loadGoogleMaps;
