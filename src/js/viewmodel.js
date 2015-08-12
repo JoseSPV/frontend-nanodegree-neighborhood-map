@@ -549,12 +549,9 @@ var Search = function() {
         if(self.loadDataController.dataNotLoaded() < self.loadDataController.dataToLoad()) {
 
           if(self.history()[self.currentLocation].storedCategories.length > 0) {
-            console.log(self.history()[self.currentLocation].storedCategories);
             self.appFilters.visibleCategoriesFilters(self.history()[self.currentLocation].storedCategories);
             self.appFilters.visibleCategoriesFilters.push({id:'all', name:'all', icon:'images/all.png'});
-            console.log('here');
           }
-          console.log('entro');
           self.appFilters.showGroup({id: 'all'});
           self.appUI.allowFilters(true);
 
@@ -985,7 +982,7 @@ var Search = function() {
   * @param {object} category - The category of the venues group obtained
   */
   function populateInterestPoints(response, category) {
-    console.log(category);
+
     if(response.status === 'ok') {
 
       if(response.data.response.venues.length > 0) {
