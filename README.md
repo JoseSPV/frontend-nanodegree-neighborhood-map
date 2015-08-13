@@ -102,7 +102,7 @@ A filter box tool is also available and can be used to filter the results by typ
 
 This tools will update the results displayed on the map and on the sidebar list.
 
-#### iV. Interest Points
+#### iv. Interest Points
 
 Whenever an interest point is clicked (using the markers or the sidebar list) an info window is opened with some information about this place. The amount of information can vary depending on the data retrieved from Foursquare.
 
