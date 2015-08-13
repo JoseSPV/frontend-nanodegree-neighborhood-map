@@ -4,9 +4,9 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     jsdoc : {
         dist : {
-            src: ['dist/js/app.js','dist/js/viewmodel.js','dist/js/custom-bindings.js'],
+            src: ['src/js/app.js','src/js/viewmodel.js','src/js/custom-bindings.js'],
             options: {
-                destination: 'doc'
+                destination: 'src/doc'
             }
         }
     },
@@ -125,6 +125,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-processhtml');
 
   grunt.registerTask('deploy', ['ghpages']);
-  grunt.registerTask('default', ['jshint','clean:dist','copy','jsdoc','uglify','cssmin','concat','processhtml','htmlmin','imagemin','clean:css','clean:js']);
+  grunt.registerTask('default', ['jshint','clean:dist','jsdoc','copy','uglify','cssmin','concat','processhtml','htmlmin','imagemin','clean:css','clean:js']);
 
 };
