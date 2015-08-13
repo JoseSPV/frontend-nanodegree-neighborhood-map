@@ -95,10 +95,12 @@ The application uses the following third-party APis:
 
 #### iii. Filter Tools
 
-The amount of category filters will vary depending on the interest points found in a certain location. If the application does no find interest points within a certain category the
+The amount of category filters will vary depending on the interest points found in a certain location. If the application does not find interest points within a certain category the
 associated category button will not be displayed.
 
-The filter tools will update the results displayed on the map and on the sidebar list.
+A filter box tool is also available and can be used to filter the results by typing the name of the interest point we want to see.
+
+This tools will update the results displayed on the map and on the sidebar list.
 
 #### iV. Interest Points
 
@@ -112,6 +114,6 @@ The application stores the locations searched (only during the current session) 
 
 ## 4. Technichal documentation
 
-The original source files can be found inside the `/src` directory. The code is commented but a documentation page is also available in the doc folder
+The original source files can be found inside the `/src` directory. A documentation page is also available in the doc folder [here](https://github.com/JoseSPV/frontend-nanodegree-neighborhood-map/doc/index.html)
 
-See the link [here](https://github.com/JoseSPV/frontend-nanodegree-neighborhood-map/doc/index.html)
+Comments can be found inside the HTML, CSS and JavaScript files.
