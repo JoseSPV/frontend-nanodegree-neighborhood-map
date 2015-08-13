@@ -98,6 +98,14 @@ module.exports = function(grunt) {
           }
       }
     },
+    'ghpages': {
+      options: {
+        base: 'dist',
+        branch: 'master',
+        message: 'Updated from GRUNT'
+      },
+      src: ['**']
+    },
     watch: {
       files: ['<%= jshint.files %>'],
       tasks: ['jshint']
@@ -116,6 +124,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-processhtml');
 
+  grunt.registerTask('deploy', ['ghpages']);
   grunt.registerTask('default', ['jshint','clean:dist','copy','jsdoc','uglify','cssmin','concat','processhtml','htmlmin','imagemin','clean:css','clean:js']);
 
 };
