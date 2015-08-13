@@ -9,17 +9,17 @@ Neighborhood Map project / Version: 0.1.0 12/08/2015 / Author: José Sancho Pago
 ####Index
 
 1. How to run the project
-  i. One-Clik
-  ii. Run the application locally
+  1. One-Clik
+  2. Run the application locally
 2. Tools and Sources used
-  i. Software
-  ii. Webs and books
+  1. Software
+  2. Webs and books
 3. The Application
-  i. What the application does
-  ii. Third-Party APIs
-  iii. Filter Tools
-  iV. Interest Points
-  vi. History function
+  1. What the application does
+  2. Third-Party APIs
+  3. Filter Tools
+  4. Interest Points
+  5. History function
 4. Technichal documentation
 
 ---
@@ -114,6 +114,6 @@ The application stores the locations searched (only during the current session) 
 
 ## 4. Technichal documentation
 
-The original source files can be found inside the `/src` directory. A documentation page is also available in the doc folder [here](https://github.com/JoseSPV/frontend-nanodegree-neighborhood-map/doc/index.html)
+The original source files can be found inside the `/src` directory. A documentation page is also available in the doc folder [here](http://josespv.github.io/frontend-nanodegree-neighborhood-map/doc/index.html)
 
 Comments can be found inside the HTML, CSS and JavaScript files.
