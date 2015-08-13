@@ -27,13 +27,19 @@ function loadMapsEror() {
 * @callback loadGoogleMaps.startApp
 */
 function startApp () {
+
+  // extra check for google maps
   if(typeof google === 'object' && typeof google.maps === 'object') {
+
     var app = new Search();
     app.initApp();
     ko.applyBindings(app);
     console.log('Welcome');
+
   } else {
+
     animations.alert(errorMessages.googleMaps); //ERROR
+
   }
 }
 /**
@@ -42,6 +48,7 @@ function startApp () {
 * @param {loadGoogleMaps~startApp} callback - This callback must be supplied within the src attribute of the script in order to make this method work.
 */
 function loadGoogleMaps() {
+
   var gMaps = document.createElement('script');
   gMaps.type = 'text/javascript';
   gMaps.onerror = loadMapsEror;

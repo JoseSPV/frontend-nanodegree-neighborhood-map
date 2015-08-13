@@ -58,8 +58,8 @@ var animations = {
 * @classdesc Stores the WikiMediaApi API credentials and a method to retrieve an article related to the term passed.
 */
 var WikiMediaApi = function () {
-  var self = this;
 
+  var self = this;
  /**
  * Request to get the data from the WikiMedia API.
  *
@@ -127,6 +127,7 @@ var FoursquareApi = function () {
   * @returns {string} baseUrl + query - The URL used for the AJAX request
   */
   self.setRequest = function(where, categoryId, resultsLimit) {
+
     var query = '';
     var category = '&categoryId=' + categoryId || '';
     var limit = resultsLimit || 5; //Max limit 50 per query established by the Foursquare's API;
@@ -145,6 +146,7 @@ var FoursquareApi = function () {
   * @returns {object} request - The request response
   */
   self.getCategories = function(callback) {
+
     // this is the response format the app uses
     var request = {
       status: 'ok',
@@ -194,6 +196,7 @@ var FoursquareApi = function () {
   * @param {FoursquareApi~populateInterestPoints} callback - The callback that handles the response
   */
   self.getVenues = function(formattedCoordinates,filters,limit,callback) {
+
     var requestUrl = '';
     // this is the response format the app uses
     var request = {
@@ -262,6 +265,7 @@ var FoursquareApi = function () {
 * @property {object} locInfo WikiPedia article about the location
 */
 var Location = function(locationData) {
+
   var self = this;
 
   self.name = locationData.name;
@@ -320,6 +324,7 @@ var Location = function(locationData) {
 * @property {MapMarker} ipData.marker - @see {@link MapMarker}
 */
 var InterestPoint = function(ipData) {
+
   var self = this;
 
   self.id = ipData.id;
@@ -337,6 +342,7 @@ var InterestPoint = function(ipData) {
   * @param {InterestPoint} point
   */
   self.openInfoWindow = function(point) {
+
     var marker = point.marker.marker;
     var map = point.marker.map;
 
@@ -370,6 +376,7 @@ var InterestPoint = function(ipData) {
 * @property {google.maps.Marker} marker - Stores the google.maps.Marker object. Is created using the markerData
 */
 var MapMarker = function(markerData) {
+
   var self = this;
 
   self.id = markerData.id;
@@ -495,6 +502,7 @@ var MapMarker = function(markerData) {
 * @property {WikiMediaApi} wikiMediaApi - Used as a tool to get information from the WikiMedia API {@link https://www.mediawiki.org/wiki/API:Main_page/es}
 */
 var Search = function() {
+
   'use strict';
   var self = this;
 
@@ -595,6 +603,7 @@ var Search = function() {
   * @param {object} location
   */
   self.addLocation = function(location) {
+
     // only reset the app if we already have stored a location
     if(self.history().length > 0) {
       self.resetApp();
@@ -624,6 +633,7 @@ var Search = function() {
   * @param {object} location
   */
   self.reloadLocation = function(location) {
+
     //do not load the location if it is already loaded
     if(location.locationId !== self.history()[self.currentLocation].locationId) {
       self.resetApp();
@@ -749,6 +759,7 @@ var Search = function() {
   * @method
   */
   function initFilters() {
+
     /**
     * Stores the state of the available filters and the actions the user can do.
     *
@@ -794,6 +805,7 @@ var Search = function() {
     * @param {object} categoryGroup - Contains all the information related to a category @see {@link getCategories}
     */
     self.appFilters.showGroup = function(categoryGroup) {
+
         var group = '';
 
         if(categoryGroup.id === 'all') {
@@ -850,6 +862,7 @@ var Search = function() {
   * @method
   */
   function initFoursquare() {
+
     self.foursquareApi = new FoursquareApi();
     self.foursquareApi.getCategories(populateCategoriesFilters);
 
@@ -877,6 +890,7 @@ var Search = function() {
   * @method
   */
   function initMap() {
+
     /**
     * Stores all the necessary to work with the google.maps.Map associated to the current performed search.
     *
@@ -1038,6 +1052,7 @@ var Search = function() {
  * @param {object} response - The data and status of the performed AJAX called
  */
   function populateArticles(response) {
+
     var articleData = {
       title: '',
       description: '',

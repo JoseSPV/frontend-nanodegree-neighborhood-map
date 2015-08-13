@@ -4,6 +4,7 @@
 * @name Search#updateMap
 */
 ko.bindingHandlers.updateMap = {
+
   update: function (element, valueAccessor, allBindings) {
     var self = this;
 
@@ -40,6 +41,7 @@ ko.bindingHandlers.updateMap = {
 * @name Search#getLocation
 */
 ko.bindingHandlers.getLocation = {
+
   init: function (element, valueAccessor, allBindings) {
 
       // Get the serchfield text to be used by the Autocomplete
